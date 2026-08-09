@@ -1,0 +1,9 @@
+-e ../layer2-indexer
+-e ../layer3-context
+-e ../layer4-planner
+-e ../layer5-implementer
+structlog
+click
+pytest
+pytest-timeout
+ruff

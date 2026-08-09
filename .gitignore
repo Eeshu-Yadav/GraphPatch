@@ -1,0 +1,60 @@
+# --- environments / dependencies ---
+.venv/
+node_modules/
+.next/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# --- secrets ---
+.env
+!.env.example
+
+# --- local data / caches ---
+repos/
+logs/
+traces/
+traces_*/
+swe_bench_results/
+profiles/
+claude_code_agent/reembed/
+minions/tasks.db
+*.db
+.claude/
+minions/dashboard/.git-local-backup/
+
+# --- experiment outputs & run logs ---
+*.txt
+!requirements.txt
+*.docx
+*.xlsx
+batch_results.json
+ticket-to-pr-agent.*.json
+lean_v*.json
+claude_code_agent*.json
+*.claude_code_*.json
+
+# --- internal design & research docs (kept local only) ---
+ADAPTIVE_CONTEXT_*.md
+ARCHITECTURE_DIAGRAMS.md
+architecture-diagrams.html
+ARCHITECTURE.md
+ASTROPY_EXPERIMENT_REPORT.md
+CODEBASE_INDEXING_PLAN.md
+CONTEXT_LANDSCAPE.md
+DESIGN*.md
+*_DESIGN.md
+DETAILED_ANALYSIS.md
+ISSUES_RESOLVED_REPORT.md
+LEAN_AGENT_ALL_RUNS.md
+LEAN_V3_*.md
+OUTPUT.md
+PIPELINE_WALKTHROUGH.md
+plan 4-5.md
+PLAN_v6.md
+system-prompts-analysis.md
+TOOL_CATALOG.md
+VAGUE_TICKET_EXPERIMENT.md
+GIT_COUPLING_DESIGN.md
+SANDBOX_IMPROVEMENTS.md

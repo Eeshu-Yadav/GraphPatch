@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "layer3-context"
+version = "0.1.0"
+description = "Context Assembly Pipeline — Layer 3 of Ticket-to-PR"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["layer3_context"]

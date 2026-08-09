@@ -1,0 +1,124 @@
+version: "3.9"
+
+# Monorepo-level infra — shared across all layers
+# Spin up: docker-compose up -d
+
+services:
+  memgraph:
+    image: memgraph/memgraph-mage:latest   # includes PageRank, community detection via MAGE
+    ports:
+      - "7687:7687"   # Bolt protocol (driver connections)
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+    environment:
+      MEMGRAPH_MEMORY_LIMIT: "4096"        # 4 GB — comfortable for 1K-10K file repos
+    restart: unless-stopped
+
+  memgraph-lab:
+    image: memgraph/lab:latest
+    ports:
+      - "3000:3000"   # Memgraph Lab UI → http://localhost:3000
+    environment:
+      QUICK_CONNECT_MG_HOST: memgraph
+      QUICK_CONNECT_MG_PORT: "7687"
+    depends_on:
+      - memgraph
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    # After first start, pull the model:
+    #   docker exec -it ollama ollama pull nomic-embed-text
+    # nomic-embed-code uses the same API, model name: nomic-embed-text (v1.5 supports code)
+
+  # Layer 2 — Indexer API + Workers
+  indexer-api:
+    build:
+      context: ./layer2-indexer
+      dockerfile: Dockerfile
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8001 --reload
+    ports:
+      - "8001:8001"
+    depends_on:
+      - memgraph
+      - qdrant
+      - redis
+      - ollama
+    volumes:
+      - ./layer2-indexer:/app
+      - repo_cache:/tmp/repos      # cloned repos land here
+    environment:
+      MEMGRAPH_HOST: memgraph
+      MEMGRAPH_PORT: "7687"
+      QDRANT_URL: http://qdrant:6333
+      REDIS_URL: redis://redis:6379
+      OLLAMA_URL: http://ollama:11434
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GITHUB_APP_ID: ${GITHUB_APP_ID}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
+      REPO_CACHE_DIR: /tmp/repos
+    restart: unless-stopped
+
+  indexer-worker:
+    build:
+      context: ./layer2-indexer
+      dockerfile: Dockerfile
+    command: celery -A src.workers.celery_app worker -l info -Q indexing,coupling -c 4
+    depends_on:
+      - memgraph
+      - qdrant
+      - redis
+      - ollama
+    volumes:
+      - ./layer2-indexer:/app
+      - repo_cache:/tmp/repos
+    environment:
+      MEMGRAPH_HOST: memgraph
+      MEMGRAPH_PORT: "7687"
+      QDRANT_URL: http://qdrant:6333
+      REDIS_URL: redis://redis:6379
+      OLLAMA_URL: http://ollama:11434
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      REPO_CACHE_DIR: /tmp/repos
+    restart: unless-stopped
+
+  coupling-cron:
+    build:
+      context: ./layer2-indexer
+      dockerfile: Dockerfile
+    command: celery -A src.workers.celery_app beat -l info
+    depends_on:
+      - redis
+    environment:
+      REDIS_URL: redis://redis:6379
+    restart: unless-stopped
+
+volumes:
+  memgraph_data:
+  qdrant_data:
+  redis_data:
+  ollama_data:
+  repo_cache:

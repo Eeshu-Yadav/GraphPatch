@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "layer7-pr-publisher"
+version = "0.1.0"
+description = "PR Publisher — Layer 7 of Ticket-to-PR"
+requires-python = ">=3.12"
+dependencies = [
+    "gitpython>=3.1",
+    "requests>=2.31",
+    "structlog>=24.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["layer7_publisher"]

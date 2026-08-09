@@ -1,0 +1,5 @@
+-e ../layer2-indexer
+-e ../layer3-context
+google-genai>=1.0.0
+structlog
+click

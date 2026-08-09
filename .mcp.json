@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "ticket-to-pr": {
+      "type": "stdio",
+      "command": "/home/eeshu/Desktop/context/.venv/bin/python",
+      "args": ["-m", "mcp_server.server"],
+      "cwd": "/home/eeshu/Desktop/context/mcp-server",
+      "env": {
+        "PYTHONPATH": "/home/eeshu/Desktop/context:/home/eeshu/Desktop/context/layer2-indexer/src:/home/eeshu/Desktop/context/layer3-context:/home/eeshu/Desktop/context/layer4-planner:/home/eeshu/Desktop/context/layer6-validator:/home/eeshu/Desktop/context/layer7-pr-publisher:/home/eeshu/Desktop/context/layer45-agent:/home/eeshu/Desktop/context/mcp-server"
+      }
+    },
+    "codebase-graph": {
+      "type": "stdio",
+      "command": "/home/eeshu/Desktop/context/layer2-indexer/.venv/bin/python",
+      "args": ["-m", "claude_code_agent.server"],
+      "cwd": "/home/eeshu/Desktop/context",
+      "env": {
+        "PYTHONPATH": "/home/eeshu/Desktop/context:/home/eeshu/Desktop/context/layer2-indexer:/home/eeshu/Desktop/context/layer2-indexer/src:/home/eeshu/Desktop/context/layer3-context:/home/eeshu/Desktop/context/layer4-planner:/home/eeshu/Desktop/context/layer45-agent:/home/eeshu/Desktop/context/lean_agent:/home/eeshu/Desktop/context/mcp-server"
+      }
+    }
+  }
+}
